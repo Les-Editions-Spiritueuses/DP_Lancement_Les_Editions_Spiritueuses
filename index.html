@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Les Éditions Spiritueuses | Dossier de presse</title>
+<meta name="description" content="Liseuse du dossier de presse 2026 des Éditions Spiritueuses.">
+<link rel="preload" as="image" href="pages/std/p01.webp" fetchpriority="high">
+<style>
+  :root{
+    --bg:#0d1117; --bg2:#121924; --panel:#151d29;
+    --gold:#c5a05a; --gold-soft:rgba(197,160,90,.55); --gold-line:rgba(197,160,90,.32); --gold-wash:rgba(197,160,90,.14);
+    --muted:#b39a6c; --text:#e9dfc8;
+    --bar-h:64px; --ctl-h:64px;
+    --fade:.18s;
+  }
+  @media (prefers-reduced-motion: reduce){ :root{ --fade:0s } *{ scroll-behavior:auto !important } }
+  *{ margin:0; padding:0; box-sizing:border-box }
+  html,body{ height:100% }
+  body{ background:var(--bg); color:var(--text); font-family:Georgia,'Times New Roman',serif; overflow:hidden;
+        display:flex; flex-direction:column; -webkit-tap-highlight-color:transparent }
+  button,a{ font:inherit; color:inherit }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; border-radius:6px }
+  .sr-only{ position:absolute !important; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; padding:0; margin:-1px }
+  svg{ width:18px; height:18px; flex:none; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round }
+
+  /* ---------- Barre d'outils ---------- */
+  .toolbar{ flex:none; min-height:var(--bar-h); display:flex; align-items:center; gap:12px; padding:10px 18px;
+            background:var(--bg2); border-bottom:1px solid var(--gold-line); position:relative; z-index:20; flex-wrap:wrap }
+  .brand{ display:flex; flex-direction:column; line-height:1.15; margin-right:auto; min-width:0 }
+  .brand b{ color:var(--gold); font-weight:normal; letter-spacing:.14em; text-transform:uppercase; font-size:13px }
+  .brand span{ color:var(--muted); font-family:'Courier New',monospace; font-size:11.5px; letter-spacing:.12em; text-transform:uppercase }
+  .group{ display:flex; align-items:center; gap:8px; flex-wrap:wrap }
+  .tbtn,.action{ display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border-radius:8px;
+                 border:1.5px solid var(--gold-line); background:transparent; color:var(--gold); cursor:pointer;
+                 text-decoration:none; font-size:14px; letter-spacing:.02em; transition:background var(--fade),border-color var(--fade); white-space:nowrap }
+  .tbtn:hover,.action:hover{ background:var(--gold-wash); border-color:var(--gold) }
+  .tbtn[aria-pressed="true"],.tbtn[aria-expanded="true"]{ background:var(--gold-wash); border-color:var(--gold) }
+  .seg{ display:inline-flex; border:1.5px solid var(--gold-line); border-radius:8px; overflow:hidden }
+  .seg .tbtn{ border:0; border-radius:0 }
+  .seg .tbtn + .tbtn{ border-left:1.5px solid var(--gold-line) }
+  .action.primary{ background:var(--gold); color:#141a22; border-color:var(--gold) }
+  .action.primary:hover{ background:#d4b273 }
+  .action .meta{ display:block; font-family:'Courier New',monospace; font-size:11px; letter-spacing:.05em; opacity:.85; line-height:1 }
+  .action .lbl{ display:flex; flex-direction:column; gap:3px; line-height:1.05 }
+  [hidden]{ display:none !important }
+
+  /* ---------- Zone de lecture ---------- */
+  .stage{ flex:1; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; padding:18px; touch-action:pan-y }
+  .view{ display:flex; box-shadow:0 20px 60px rgba(0,0,0,.8); transition:opacity var(--fade) ease; background:#1a212c; position:relative }
+  .view.fade{ opacity:0 }
+  .view img{ display:block; height:100%; width:auto; user-select:none; -webkit-user-drag:none }
+  .view.spread img:first-child{ box-shadow:inset -12px 0 18px -14px rgba(0,0,0,.45) }
+  .view .fold{ position:absolute; top:0; bottom:0; width:1px; background:rgba(0,0,0,.18); pointer-events:none }
+
+  /* ---------- Commandes ---------- */
+  .controls{ flex:none; height:var(--ctl-h); display:flex; align-items:center; justify-content:center; gap:16px; padding:0 12px 10px }
+  .round{ width:46px; height:46px; border-radius:50%; border:1.5px solid var(--gold-soft); background:transparent; color:var(--gold);
+          display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:background var(--fade),border-color var(--fade) }
+  .round:hover:not(:disabled){ background:var(--gold-wash); border-color:var(--gold) }
+  .round:disabled{ opacity:.25; cursor:default }
+  .counter{ color:var(--gold); font-family:'Courier New',monospace; font-size:14px; letter-spacing:.14em; min-width:148px; text-align:center }
+  .hint{ position:absolute; bottom:4px; left:0; right:0; text-align:center; color:var(--muted); font-family:'Courier New',monospace; font-size:11px; letter-spacing:.08em; pointer-events:none }
+
+  /* ---------- Panneaux (sommaire, texte) ---------- */
+  .panel{ position:absolute; z-index:15; top:var(--bar-top,64px); bottom:0; width:min(380px,92vw); background:var(--panel);
+          border:1px solid var(--gold-line); display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,.6) }
+  #toc{ left:0; border-left:0 } #textpanel{ right:0; border-right:0; width:min(460px,94vw) }
+  .panel header{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px 12px 18px; border-bottom:1px solid var(--gold-line) }
+  .panel h2{ font-weight:normal; color:var(--gold); font-size:14px; letter-spacing:.14em; text-transform:uppercase }
+  .panel .body{ overflow:auto; padding:14px 18px 24px; flex:1 }
+  .toc-list{ list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:12px }
+  .toc-list button{ width:100%; background:transparent; border:1.5px solid transparent; border-radius:8px; padding:6px; cursor:pointer; text-align:left; color:var(--text) }
+  .toc-list button:hover{ border-color:var(--gold-line) }
+  .toc-list button[aria-current="true"]{ border-color:var(--gold) }
+  .toc-list img{ display:block; width:100%; height:auto; aspect-ratio:240/340; background:#1a212c }
+  .toc-list .n{ display:block; color:var(--gold); font-family:'Courier New',monospace; font-size:12px; margin-top:6px }
+  .toc-list .t{ display:block; font-size:12.5px; line-height:1.3; color:var(--text) }
+  .ptext{ font-size:15px; line-height:1.6; color:var(--text) }
+  .ptext .pn{ color:var(--gold); font-family:'Courier New',monospace; font-size:12px; letter-spacing:.12em; margin:6px 0 8px; text-transform:uppercase }
+  .ptext h3{ font-weight:normal; color:var(--gold); font-size:19px; line-height:1.3; margin:0 0 10px }
+  .ptext .sur,.ptext .lab,.ptext .sub{ font-family:'Courier New',monospace; font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:12px 0 4px }
+  .ptext p{ margin:0 0 10px } .ptext .key{ color:var(--gold) }
+  .ptext a{ color:var(--gold); text-underline-offset:3px }
+  .ptext + .ptext{ border-top:1px solid var(--gold-line); margin-top:18px; padding-top:10px }
+
+  /* ---------- Mode agrandi ---------- */
+  .lb{ position:fixed; inset:0; z-index:100; background:rgba(5,8,12,.96); display:flex; flex-direction:column }
+  .lb-top{ flex:none; display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--bg2); border-bottom:1px solid var(--gold-line); flex-wrap:wrap }
+  .lb-top .grow{ margin-right:auto; display:flex; align-items:center; gap:10px }
+  .lb-zoom{ display:flex; align-items:center; gap:4px; border:1.5px solid var(--gold-line); border-radius:8px; padding:0 4px }
+  .lbtn{ width:44px; height:44px; border:0; background:transparent; color:var(--gold); border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer }
+  .lbtn:hover{ background:var(--gold-wash) }
+  .zl{ color:var(--gold); font-family:'Courier New',monospace; font-size:13px; min-width:52px; text-align:center }
+  .lb-stage{ flex:1; min-height:0; position:relative; overflow:hidden; touch-action:none; cursor:default }
+  .lb-stage.zoomed{ cursor:grab } .lb-stage.grabbing{ cursor:grabbing }
+  .lb-view{ position:absolute; left:50%; top:50%; display:flex; transform-origin:0 0; will-change:transform; box-shadow:0 30px 80px rgba(0,0,0,.9) }
+  .lb-view img{ display:block; height:100%; width:auto; user-select:none; -webkit-user-drag:none }
+  .lb-nav{ position:absolute; top:50%; transform:translateY(-50%); z-index:3; background:rgba(13,17,23,.82) }
+  #lbPrev{ left:14px } #lbNext{ right:14px }
+
+  .lb-actions{ display:flex; gap:8px }
+  /* ---------- Petits écrans ---------- */
+  @media (max-width:820px){
+    .toolbar{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; padding:8px 10px }
+    .brand{ margin:0 } .brand b{ font-size:12px; letter-spacing:.1em } .brand span{ font-size:10.5px }
+    #tocBtn .tl, #textBtn .tl{ display:none }
+    .group{ gap:6px }
+    .toolbar .group.actions, .lb-actions{ grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:8px }
+    .action{ justify-content:center; padding:0 8px; font-size:13px; gap:7px }
+    .action .meta{ font-size:10px }
+    .counter{ min-width:116px; font-size:13px; letter-spacing:.08em }
+    .controls{ gap:12px }
+    .hint{ display:none }
+    .stage{ padding:10px }
+    .lb-top{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; padding:8px 10px }
+    .lb-top .grow{ margin:0; gap:4px } .lb-top .counter{ min-width:0 }
+    .lb-zoom .lbtn{ width:42px }
+    .lb-nav{ top:auto; bottom:12px; transform:none; width:44px; height:44px }
+  }
+  @media (max-width:360px){ .action .meta{ display:none } .brand span{ display:none } }
+</style>
+</head>
+<body>
+<header class="toolbar" id="toolbar">
+  <div class="brand"><b>Les Éditions Spiritueuses</b><span>Dossier de presse 2026</span></div>
+  <div class="group" role="group" aria-label="Affichage">
+    <div class="seg" id="modeSeg" role="group" aria-label="Mode de lecture">
+      <button class="tbtn" id="modePage" type="button" aria-pressed="true">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1"/></svg><span>Page</span></button>
+      <button class="tbtn" id="modeSpread" type="button" aria-pressed="false">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="2" y="4" width="10" height="16" rx="1"/><rect x="12" y="4" width="10" height="16" rx="1"/></svg><span>Double page</span></button>
+    </div>
+    <button class="tbtn" id="tocBtn" type="button" aria-label="Sommaire" aria-expanded="false" aria-controls="toc">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="tl">Sommaire</span></button>
+    <button class="tbtn" id="textBtn" type="button" aria-label="Texte de la page" aria-expanded="false" aria-controls="textpanel">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h12"/></svg><span class="tl">Texte<span class="opt"> de la page</span></span></button>
+  </div>
+  <div class="group actions" role="group" aria-label="Ressources">
+    <a class="action" id="visuelsLink" href="https://drive.google.com/drive/folders/1E20jxy0DDJz8FSQ7mS0sG0pWvEdy81nm?usp=sharing" target="_blank" rel="noopener noreferrer" aria-label="Visuels presse (ouvre la photothèque dans un nouvel onglet)">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg><span>Visuels presse</span></a>
+    <a class="action primary" id="pdfLink" href="LES_Editions_Spiritueuses_Dossier_de_presse_2026.pdf" download="LES_Editions_Spiritueuses_Dossier_de_presse_2026.pdf" type="application/pdf" aria-label="Télécharger le PDF, format A4 portrait, 4,3 Mo">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="lbl"><span>Télécharger le PDF</span><span class="meta">PDF portrait · 4,3 Mo</span></span></a>
+  </div>
+</header>
+
+<main class="stage" id="stage" aria-label="Lecture du dossier de presse">
+  <div class="view" id="view" role="group" aria-roledescription="page"></div>
+  <div class="hint" aria-hidden="true">← → pour naviguer · Agrandir pour zoomer · Échap pour fermer</div>
+</main>
+
+<nav class="controls" aria-label="Navigation entre les pages">
+  <button class="round" id="prev" type="button" aria-label="Page précédente"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="counter" id="counter" aria-live="polite" aria-atomic="true">Page 1 / 16</div>
+  <button class="round" id="next" type="button" aria-label="Page suivante"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  <button class="round" id="zoomBtn" type="button" aria-label="Agrandir et zoomer" aria-haspopup="dialog"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6"/></svg></button>
+</nav>
+
+<aside class="panel" id="toc" hidden aria-labelledby="tocTitle">
+  <header><h2 id="tocTitle">Sommaire</h2><button class="lbtn" type="button" data-close="toc" aria-label="Fermer le sommaire"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+  <div class="body"><ol class="toc-list" id="tocList"></ol></div>
+</aside>
+
+<aside class="panel" id="textpanel" hidden aria-labelledby="textTitle">
+  <header><h2 id="textTitle">Texte de la page</h2><button class="lbtn" type="button" data-close="textpanel" aria-label="Fermer le texte de la page"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+  <div class="body" id="textBody" tabindex="0"></div>
+</aside>
+
+<div id="srText" class="sr-only"></div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Mode agrandi" hidden>
+  <div class="lb-top">
+    <div class="grow">
+      <button class="lbtn" id="lbClose" type="button" aria-label="Fermer le mode agrandi (Échap)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <span class="counter" id="lbCounter" aria-live="polite">Page 1 / 16</span>
+    </div>
+    <div class="lb-zoom" role="group" aria-label="Zoom">
+      <button class="lbtn" id="zOut" type="button" aria-label="Dézoomer"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
+      <span class="zl" id="zLevel" aria-live="polite">100 %</span>
+      <button class="lbtn" id="zIn" type="button" aria-label="Zoomer"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg></button>
+      <button class="lbtn" id="zReset" type="button" aria-label="Réinitialiser le zoom"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg></button>
+    </div>
+    <div class="lb-actions">
+    <a class="action" href="https://drive.google.com/drive/folders/1E20jxy0DDJz8FSQ7mS0sG0pWvEdy81nm?usp=sharing" target="_blank" rel="noopener noreferrer" aria-label="Visuels presse (ouvre la photothèque dans un nouvel onglet)">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1.5"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg><span>Visuels presse</span></a>
+    <a class="action primary" href="LES_Editions_Spiritueuses_Dossier_de_presse_2026.pdf" download="LES_Editions_Spiritueuses_Dossier_de_presse_2026.pdf" type="application/pdf" aria-label="Télécharger le PDF, format A4 portrait, 4,3 Mo">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span class="lbl"><span>Télécharger le PDF</span><span class="meta">PDF portrait · 4,3 Mo</span></span></a>
+    </div>
+  </div>
+  <div class="lb-stage" id="lbStage">
+    <div class="lb-view" id="lbView"></div>
+    <button class="round lb-nav" id="lbPrev" type="button" aria-label="Page précédente"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="round lb-nav" id="lbNext" type="button" aria-label="Page suivante"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Configuration du document
+   layout : "pages"  -> pages portrait (modes Page et Double page)
+            "slides" -> diapositives (une vue = une image, ratio conservé)
+   Chaque page : fichiers std (lecture), hd (zoom), thumb (sommaire),
+   dimensions réelles en pixels, titre et texte accessible.
+   ============================================================ */
+const DOC = {"layout": "pages", "pdf": "LES_Editions_Spiritueuses_Dossier_de_presse_2026.pdf", "pages": [{"n": 1, "title": "Couverture", "std": "pages/std/p01.webp", "hd": "pages/hd/p01.webp", "thumb": "pages/thumbs/p01.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Les Éditions Spiritueuses"], ["p", "Dossier de presse 2026"], ["h", "Une nouvelle manière d’offrir les spiritueux"]], "links": []}, {"n": 2, "title": "Quelle bouteille offrir ?", "std": "pages/std/p02.webp", "hd": "pages/hd/p02.webp", "thumb": "pages/thumbs/p02.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Le point de départ"], ["h", "Quelle bouteille offrir ?"], ["p", "On sait parfois que quelqu’un aime le rhum ou le whisky. On connaît moins souvent les origines, les styles ou les profils aromatiques qu’il préfère."], ["p", "Entre les différentes maisons, les méthodes d’élaboration et les nombreuses références disponibles, choisir une bouteille à sa place n’a rien d’évident."], ["p", "C’est de ce constat qu’est née l’idée des Éditions Spiritueuses : permettre à celui qui offre de faire un choix personnel, sans avoir à deviner les goûts de celui qui recevra son cadeau."]], "links": []}, {"n": 3, "title": "Une autre manière de choisir un spiritueux à offrir", "std": "pages/std/p03.webp", "hd": "pages/hd/p03.webp", "thumb": "pages/thumbs/p03.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Le concept"], ["h", "Une autre manière de choisir un spiritueux à offrir."], ["p", "Étape 01"], ["p", "Le coffret que l’on offre"], ["p", "L’acheteur choisit une collection consacrée au rhum ou au whisky. Le coffret réunit quatre miniatures autour d’un thème, un livret et des fiches de dégustation."], ["p", "Étape 02"], ["p", "Quatre références qu’il découvre"], ["p", "Le bénéficiaire les déguste et les compare à son rythme. Le livret et les fiches lui donnent des repères sur leurs origines, leurs particularités et leurs profils."], ["p", "Étape 03"], ["p", "La bouteille qu’il choisit"], ["p", "Après la découverte, il retient parmi les quatre références celle dont il recevra la bouteille de 70 cl."], ["key", "Celui qui offre choisit ce qu’il souhaite faire découvrir. Celui qui reçoit garde le dernier mot sur la bouteille."]], "links": []}, {"n": 4, "title": "Choisir ce que l’on souhaite faire découvrir", "std": "pages/std/p04.webp", "hd": "pages/hd/p04.webp", "thumb": "pages/thumbs/p04.webp", "w": 1240, "h": 1755, "blocks": [["sur", "L’intention"], ["h", "Choisir ce que l’on souhaite faire découvrir."], ["p", "Avec Les Éditions Spiritueuses, celui qui offre ne se contente pas d’offrir une bouteille. Il choisit une collection, son thème et les quatre spiritueux qui la composent."], ["p", "Comptoir du Rhum, Velours des Caraïbes, Terroirs du Malt ou Routes du Whisky : chaque édition propose une sélection construite autour d’un sujet précis."], ["p", "Le cadeau porte donc une intention. Faire découvrir un territoire, des savoir-faire ou des styles que l’on a envie de partager."], ["p", "La bouteille, elle, sera choisie plus tard par celui qui aura pris le temps de découvrir la collection."]], "links": []}, {"n": 5, "title": "Offrir. Découvrir. Choisir.", "std": "pages/std/p05.webp", "hd": "pages/hd/p05.webp", "thumb": "pages/thumbs/p05.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Le parcours"], ["h", "Offrir. Découvrir. Choisir."], ["p", "01. Offrir"], ["p", "Tout commence par le choix d’une collection. Chacune réunit quatre spiritueux autour d’un thème. Celui qui offre choisit l’univers qu’il souhaite faire découvrir, sans avoir à décider quelle bouteille sera finalement préférée."], ["p", "02. Découvrir"], ["p", "Le bénéficiaire découvre la collection à son rythme. Le livret de 24 pages et les fiches de dégustation l’accompagnent pour comparer les origines, les méthodes d’élaboration et les profils aromatiques des quatre références."], ["p", "03. Choisir"], ["p", "Après la dégustation, le bénéficiaire utilise le code unique associé à son coffret pour indiquer, parmi les quatre références, celle qu’il a préférée. La bouteille de 70 cl correspondante lui est ensuite livrée à domicile."], ["key", "La bouteille choisie prolonge l’expérience."]], "links": []}, {"n": 6, "title": "Chaque collection a quelque chose à raconter", "std": "pages/std/p06.webp", "hd": "pages/hd/p06.webp", "thumb": "pages/thumbs/p06.webp", "w": 1240, "h": 1755, "blocks": [["sur", "L’esprit des éditions"], ["h", "Chaque collection a quelque chose à raconter."], ["p", "Pourquoi réunir ces quatre spiritueux plutôt que quatre autres ? C’est précisément là que commence le travail des Éditions Spiritueuses."], ["p", "Chaque collection est construite autour d’un thème. Les références sont choisies pour leurs origines, leurs méthodes d’élaboration, leurs profils aromatiques et ce qu’elles permettent de découvrir lorsqu’on les compare."], ["p", "Le livret accompagne cette sélection. Il raconte les matières premières, les territoires et les savoir-faire qui façonnent les spiritueux. Les fiches de dégustation apportent des repères supplémentaires et invitent chacun à se faire sa propre opinion."], ["p", "Le nom « Éditions » prend ici tout son sens. Il ne s’agit pas seulement de réunir quatre bouteilles miniatures dans un coffret, mais de construire un ensemble cohérent, avec un sujet, une sélection et un contenu pensé pour l’éclairer."]], "links": []}, {"n": 7, "title": "Un coffret à ouvrir, à lire et à explorer", "std": "pages/std/p07.webp", "hd": "pages/hd/p07.webp", "thumb": "pages/thumbs/p07.webp", "w": 1240, "h": 1755, "blocks": [["sur", "L’objet"], ["h", "Un coffret à ouvrir, à lire et à explorer."], ["p", "À l’ouverture, chaque élément trouve sa place dans le parcours de découverte."], ["lab", "01 Quatre miniatures de spiritueux"], ["p", "Une sélection de quatre références à déguster et à comparer pour reconnaître les différences de style, d’origine et de profil aromatique."], ["lab", "02 Un livret de 24 pages"], ["p", "Un contenu éditorial consacré à l’univers de la collection, aux matières premières, aux territoires et aux méthodes d’élaboration des spiritueux sélectionnés."], ["lab", "03 Des fiches de dégustation"], ["p", "Des repères pour accompagner la dégustation, comparer les références et noter ses impressions."], ["lab", "Un code d’activation unique"], ["p", "Il permet au bénéficiaire de choisir, parmi les quatre spiritueux de la collection, la bouteille de 70 cl qu’il souhaite recevoir à domicile."]], "links": []}, {"n": 8, "title": "Comptoir du Rhum", "std": "pages/std/p08.webp", "hd": "pages/hd/p08.webp", "thumb": "pages/thumbs/p08.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Collection découverte"], ["h", "Comptoir du Rhum"], ["sub", "Les rhums des Caraïbes"], ["p", "Les Caraïbes ont donné naissance à des traditions du rhum très différentes. La culture de la canne, les héritages historiques et les méthodes d’élaboration varient d’un territoire à l’autre."], ["key", "Comptoir du Rhum propose quatre escales : le Guatemala, la Colombie, la République dominicaine et la Barbade."], ["p", "À travers ces quatre origines, le livret retrace l’histoire du rhum caribéen, de la canne à sucre aux traditions de distillation. Il montre comment les territoires et les savoir-faire ont contribué à façonner des styles distincts."], ["p", "La dégustation permet de retrouver ces différences dans les quatre rhums sélectionnés."], ["p", "Prix public : 92 € TTC"]], "links": []}, {"n": 9, "title": "Velours des Caraïbes", "std": "pages/std/p09.webp", "hd": "pages/hd/p09.webp", "thumb": "pages/thumbs/p09.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Collection réserve"], ["h", "Velours des Caraïbes"], ["sub", "Sélection de rhums de dégustation"], ["p", "Que se passe-t-il entre la fermentation d’un rhum et sa mise en bouteille ? Une succession de choix qui détermine son caractère, sa texture et ses arômes."], ["key", "Velours des Caraïbes s’intéresse au travail d’élaboration des rhums de dégustation, avec une attention particulière portée au bois et au vieillissement."], ["p", "Le livret explique le rôle des levures, de la distillation et des différentes chauffes du chêne. Il montre comment le rhum évolue au contact du fût et pourquoi le travail du maître de chai compte autant que le temps passé à vieillir."], ["p", "Quatre rhums permettent d’aborder ces questions par la dégustation et de comparer différentes expressions du vieillissement."], ["p", "Prix public : 99 € TTC"]], "links": []}, {"n": 10, "title": "Terroirs du Malt", "std": "pages/std/p10.webp", "hd": "pages/hd/p10.webp", "thumb": "pages/thumbs/p10.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Collection signature"], ["h", "Terroirs du Malt"], ["sub", "Single malts de France"], ["p", "La France possède une tradition ancienne de culture céréalière, de distillation et d’élevage des spiritueux. Depuis plusieurs années, ses distilleries développent aussi leurs propres interprétations du single malt."], ["key", "Terroirs du Malt s’intéresse à cette nouvelle géographie du whisky français."], ["p", "D’une région à l’autre, les céréales, les climats, les méthodes de distillation et les choix de fûts contribuent à des profils différents. Le livret revient sur ces facteurs et sur la manière dont les producteurs français construisent leur identité."], ["p", "Quatre single malts invitent à découvrir cette diversité et à comparer plusieurs expressions du whisky élaboré en France."], ["p", "Prix public : 99 € TTC"]], "links": []}, {"n": 11, "title": "Routes du Whisky", "std": "pages/std/p11.webp", "hd": "pages/hd/p11.webp", "thumb": "pages/thumbs/p11.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Collection prestige"], ["h", "Routes du Whisky"], ["sub", "Grands whiskies du monde"], ["p", "L’Écosse occupe une place majeure dans l’histoire du whisky. Mais d’autres pays ont développé leurs propres traditions, avec des matières premières, des techniques et des styles qui leur appartiennent."], ["key", "Routes du Whisky choisit de s’éloigner des terres écossaises pour explorer quatre autres cultures : l’Irlande, le Japon, la France et les États-Unis."], ["p", "Le livret présente ce qui distingue chacune d’elles. Le whiskey irlandais et ses traditions de distillation, la recherche d’équilibre au Japon, la diversité des terroirs français ou encore le rôle des céréales et du chêne neuf dans les whiskeys américains."], ["p", "Quatre whiskies, issus de ces quatre pays, permettent de comparer des approches différentes d’un même spiritueux."], ["p", "Prix public : 115 € TTC"]], "links": []}, {"n": 12, "title": "Connaître ses goûts sans prétendre les deviner", "std": "pages/std/p12.webp", "hd": "pages/hd/p12.webp", "thumb": "pages/thumbs/p12.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Celui qui offre"], ["h", "Connaître ses goûts sans prétendre les deviner."], ["p", "On sait qu’un proche apprécie le whisky. Mais préfère-t-il les notes tourbées, les profils floraux ou les whiskies plus fruités ? Même lorsqu’on connaît bien quelqu’un, il n’est pas toujours facile de choisir une bouteille qui corresponde à ses goûts."], ["p", "Les Éditions Spiritueuses proposent de faire un autre choix : celui d’une collection à découvrir."], ["p", "Celui qui offre sélectionne un thème, une origine ou un ensemble de savoir-faire qu’il souhaite faire découvrir. Le bénéficiaire peut ensuite comparer quatre spiritueux et choisir lui-même la bouteille qui correspond à ses préférences."]], "links": []}, {"n": 13, "title": "Comparer pour identifier ses préférences", "std": "pages/std/p13.webp", "hd": "pages/hd/p13.webp", "thumb": "pages/thumbs/p13.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Celui qui reçoit"], ["h", "Comparer pour identifier ses préférences."], ["p", "Deux whiskies peuvent présenter des profils très différents. L’un peut être marqué par la tourbe et les notes fumées. L’autre peut développer des arômes floraux, fruités ou épicés."], ["p", "Avec Les Éditions Spiritueuses, le bénéficiaire découvre quatre références sélectionnées autour d’un même thème. Le livret lui apporte des informations sur leurs origines, leurs méthodes d’élaboration et leurs caractéristiques aromatiques."], ["p", "La comparaison lui permet d’identifier les styles qu’il préfère. Il peut ensuite choisir sa bouteille parmi les quatre spiritueux de la collection."]], "links": []}, {"n": 14, "title": "Un concept innovant. Une ambition éditoriale.", "std": "pages/std/p14.webp", "hd": "pages/hd/p14.webp", "thumb": "pages/thumbs/p14.webp", "w": 1240, "h": 1755, "blocks": [["sur", "À l’origine des Éditions Spiritueuses"], ["h", "Un concept innovant. Une ambition éditoriale."], ["p", "Sébastien Lallour, fondateur des Éditions Spiritueuses"], ["p", "« Derrière chaque spiritueux, il y a une histoire, des territoires et des savoir-faire. Je voulais que celui qui offre puisse transmettre cette richesse, et que celui qui reçoit ait les clés pour comprendre ce qu’il déguste. Le cadeau devient ainsi une expérience de découverte, au-delà de la bouteille. »"], ["p", "Après plus de 25 ans dans l’univers des vins et spiritueux, dont quatorze années à la direction marketing de Dugas, Sébastien Lallour a fondé Les Éditions Spiritueuses à partir d’un constat réalisé au contact des acheteurs chez les cavistes."], ["p", "« Chez les cavistes, j’ai souvent rencontré des clients qui souhaitaient offrir une belle bouteille, mais hésitaient sur celle qui ferait plaisir. De ce constat est née l’idée : offrir une collection à déguster, puis laisser la personne qui reçoit le cadeau choisir sa bouteille. C’est inédit ! »"], ["p", "De cette observation est né un concept qui distingue le choix d’une collection, effectué par celui qui offre, de celui de la bouteille, laissé à son bénéficiaire."], ["p", "Mais le projet porte également une autre conviction : les spiritueux sont des produits dont la richesse ne se limite pas à leurs caractéristiques aromatiques. Ils sont le résultat d’une histoire, de traditions, de territoires et de savoir-faire qui méritent d’être expliqués."], ["p", "Avec Les Éditions Spiritueuses, Sébastien Lallour propose ainsi une approche associant sélection de spiritueux, transmission de connaissances et liberté de choix."]], "links": []}, {"n": 15, "title": "Quatre collections pour découvrir les spiritueux", "std": "pages/std/p15.webp", "hd": "pages/hd/p15.webp", "thumb": "pages/thumbs/p15.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Les collections"], ["h", "Quatre collections pour découvrir les spiritueux."], ["p", "Chaque coffret des Éditions Spiritueuses réunit quatre miniatures de spiritueux sélectionnés autour d’un thème, un livret éditorial de 24 pages, des fiches de dégustation et une carte avec un code unique."], ["p", "Après la découverte des quatre références, le bénéficiaire choisit celle dont il souhaite recevoir une bouteille de 70 cl, livrée à domicile."], ["sur", "Les quatre collections"], ["p", "Comptoir du Rhum"], ["p", "92 € TTC"], ["p", "Les rhums des Caraïbes"], ["p", "Quatre origines : Guatemala, Colombie, République dominicaine et Barbade."], ["p", "Velours des Caraïbes"], ["p", "99 € TTC"], ["p", "Sélection de rhums de dégustation"], ["p", "Une collection consacrée à l’élaboration des rhums, au bois et au vieillissement."], ["p", "Terroirs du Malt"], ["p", "99 € TTC"], ["p", "Single malts de France"], ["p", "Quatre expressions du whisky français et de ses savoir-faire."], ["p", "Routes du Whisky"], ["p", "115 € TTC"], ["p", "Grands whiskies du monde"], ["p", "Quatre pays : Irlande, Japon, France et États-Unis."], ["sur", "En boutique"], ["p", "Disponibles chez les cavistes et sur www.les-editions-spiritueuses.com."], ["p", "Présentoir photographié, mis en situation."]], "links": [["www.les-editions-spiritueuses.com", "https://www.les-editions-spiritueuses.com/"]]}, {"n": 16, "title": "Informations presse", "std": "pages/std/p16.webp", "hd": "pages/hd/p16.webp", "thumb": "pages/thumbs/p16.webp", "w": 1240, "h": 1755, "blocks": [["sur", "Les Éditions Spiritueuses"], ["h", "Informations presse"], ["lab", "Contact presse"], ["p", "Sébastien Lallour Fondateur des Éditions Spiritueuses"], ["p", "sebastien@leseditionsspiritueuses.com"], ["lab", "Ressources presse"], ["p", "Photothèque HD : Télécharger les visuels presse"], ["p", "Photographies des coffrets, visuels des collections, portrait du fondateur, logos officiels et dossier de presse."], ["lab", "Site officiel"], ["p", "www.les-editions-spiritueuses.com"], ["lab", "Éditeur"], ["p", "Edithèque Paris, France"], ["lab", "Les Éditions Spiritueuses"], ["p", "Collections d’expériences de dégustation"], ["p", "Les spiritueux par l’expérience."], ["key", "L’abus d’alcool est dangereux pour la santé, à consommer avec modération."]], "links": [["sebastien@leseditionsspiritueuses.com", "mailto:sebastien@leseditionsspiritueuses.com"], ["Télécharger les visuels presse", "https://drive.google.com/drive/folders/1E20jxy0DDJz8FSQ7mS0sG0pWvEdy81nm?usp=sharing"], ["www.les-editions-spiritueuses.com", "https://www.les-editions-spiritueuses.com/"]]}]};
+
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const pages = DOC.pages, N = pages.length;
+  const allPortrait = pages.every(p => p.h > p.w);
+  const canSpread = DOC.layout === 'pages' && allPortrait && N > 2;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ---------- état ---------- */
+  let page = 1, lastMode = null;                       // page réelle courante (1..N)
+  let userMode = null;                // 'page' | 'spread' choisi par l'utilisateur
+  try { userMode = localStorage.getItem('les-dp-mode'); } catch(e) {}
+  const hashPage = parseInt((location.hash.match(/p(\d+)/)||[])[1]||'',10);
+  if (hashPage >= 1 && hashPage <= N) page = hashPage;
+
+  /* Double page : couverture seule, puis 2-3, 4-5 ... , dernière page seule si paire */
+  function buildSpreads(){
+    const v = [[1]];
+    for (let i = 2; i <= N; i += 2) v.push(i + 1 <= N ? [i, i + 1] : [i]);
+    return v;
+  }
+  const SPREADS = buildSpreads();
+  const SINGLES = pages.map(p => [p.n]);
+
+  function wideEnough(){ return window.innerWidth >= 900 && window.innerWidth > window.innerHeight * 1.05; }
+  function effMode(){
+    if (!canSpread) return 'page';
+    if (!wideEnough()) return 'page';           // mobile portrait / fenêtre étroite : page par page
+    return userMode || 'spread';
+  }
+  function views(){ return effMode() === 'spread' ? SPREADS : SINGLES; }
+  function viewIndexOf(p){ return views().findIndex(v => v.includes(p)); }
+  function label(v){ return v.length > 1 ? `Pages ${v[0]}–${v[1]} / ${N}` : `Page ${v[0]} / ${N}`; }
+  const P = n => pages[n - 1];
+
+  /* ---------- éléments ---------- */
+  const view = $('view'), stage = $('stage'), counter = $('counter');
+  const prevB = $('prev'), nextB = $('next');
+
+  function imgFor(n, kind){
+    const p = P(n), im = new Image();
+    im.src = kind === 'hd' ? p.hd : p.std;
+    im.width = p.w; im.height = p.h;
+    im.alt = `Page ${n} : ${p.title}`;
+    im.decoding = 'async'; im.draggable = false;
+    im.setAttribute('aria-describedby', 'srText');
+    im.addEventListener('error', () => console.error('Image manquante : ' + im.src));
+    return im;
+  }
+
+  /* Ajuste la surface à l'espace disponible sans déformation ni recadrage */
+  function fit(el, v, boxW, boxH){
+    const H = Math.max(...v.map(n => P(n).h));
+    const W = v.reduce((s, n) => s + P(n).w * H / P(n).h, 0);
+    const k = Math.min(boxW / W, boxH / H);
+    el.style.width = Math.floor(W * k) + 'px'; el.style.height = Math.floor(H * k) + 'px';
+    return { w: Math.floor(W * k), h: Math.floor(H * k) };
+  }
+  function layoutMain(){
+    const v = views()[viewIndexOf(page)];
+    const cs = getComputedStyle(stage);
+    const bw = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const bh = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    fit(view, v, bw, bh);
+    document.documentElement.style.setProperty('--bar-top', $('toolbar').offsetHeight + 'px');
+  }
+
+  let renderTok = 0;
+  function render(animate){
+    const vs = views(), vi = viewIndexOf(page), v = vs[vi];
+    const tok = ++renderTok;
+    const doSwap = () => {
+      if (tok !== renderTok) return;
+      view.replaceChildren(...v.map(n => imgFor(n, 'std')));
+      view.classList.toggle('spread', v.length > 1);
+      if (v.length > 1){ const f = document.createElement('div'); f.className = 'fold'; f.style.left = '50%'; view.appendChild(f); }
+      view.setAttribute('aria-label', v.map(n => `Page ${n} : ${P(n).title}`).join(' ; '));
+      layoutMain();
+      view.classList.remove('fade');
+    };
+    if (animate && !reduceMotion.matches){ view.classList.add('fade'); setTimeout(doSwap, 160); } else doSwap();
+    counter.textContent = label(v);
+    prevB.disabled = vi === 0; nextB.disabled = vi === vs.length - 1;
+    $('modePage').setAttribute('aria-pressed', String(effMode() === 'page'));
+    $('modeSpread').setAttribute('aria-pressed', String(effMode() === 'spread'));
+    $('modeSeg').hidden = !canSpread || !wideEnough();
+    document.querySelectorAll('#tocList button').forEach(b => b.setAttribute('aria-current', String(v.includes(+b.dataset.n))));
+    renderText(v);
+    lastMode = effMode();
+    try { history.replaceState(null, '', '#p' + page); } catch(e) {}
+    if (lbOpen) renderLB();
+    preloadAround(vi);
+  }
+  function go(delta){
+    const vs = views(), vi = viewIndexOf(page) + delta;
+    if (vi < 0 || vi >= vs.length) return;
+    page = vs[vi][0]; render(true);
+  }
+  function goPage(n){ if (n >= 1 && n <= N){ page = n; render(true); } }
+
+  /* ---------- texte accessible ---------- */
+  function esc(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function linkify(s, links){
+    let h = esc(s);
+    (links || []).forEach(([t, u]) => {
+      const et = esc(t); const ext = /^https?:/.test(u);
+      h = h.split(et).join(`<a href="${esc(u)}"${ext ? ' target="_blank" rel="noopener noreferrer"' : ''}>${et}</a>`);
+    });
+    return h;
+  }
+  function pageHTML(n){
+    const p = P(n);
+    let h = `<article class="ptext" lang="fr"><div class="pn">Page ${n}</div>`;
+    p.blocks.forEach(([k, t]) => {
+      const x = linkify(t, p.links);
+      if (k === 'h') h += `<h3>${x}</h3>`;
+      else if (k === 'sur' || k === 'lab' || k === 'sub') h += `<div class="${k}">${x}</div>`;
+      else h += `<p class="${k === 'key' ? 'key' : ''}">${x}</p>`;
+    });
+    return h + '</article>';
+  }
+  function renderText(v){
+    $('textBody').innerHTML = v.map(pageHTML).join('');
+    $('srText').textContent = v.map(n => `Page ${n}. ` + P(n).blocks.map(b => b[1]).join(' ')).join(' ');
+  }
+
+  /* ---------- sommaire ---------- */
+  const tocList = $('tocList');
+  pages.forEach(p => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.dataset.n = p.n;
+    b.innerHTML = `<img alt="" loading="lazy" width="240" height="340" data-src="${p.thumb}"><span class="n">${String(p.n).padStart(2,'0')}</span><span class="t">${esc(p.title)}</span>`;
+    b.setAttribute('aria-label', `Aller à la page ${p.n} : ${p.title}`);
+    b.addEventListener('click', () => { goPage(p.n); if (!wideEnough()) togglePanel('toc', false); });
+    li.appendChild(b); tocList.appendChild(li);
+  });
+  function togglePanel(id, force){
+    const el = $(id), btn = id === 'toc' ? $('tocBtn') : $('textBtn');
+    const open = force === undefined ? el.hidden : force;
+    if (open && !wideEnough()){ const other = id === 'toc' ? 'textpanel' : 'toc'; if (!$(other).hidden) togglePanel(other, false); }
+    el.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open && id === 'toc') tocList.querySelectorAll('img[data-src]').forEach(i => { i.src = i.dataset.src; i.removeAttribute('data-src'); });
+    if (open){ const f = el.querySelector(id === 'toc' ? 'button[aria-current="true"]' : '#textBody') || el.querySelector('button'); f && f.focus(); }
+    else btn.focus();
+  }
+  $('tocBtn').addEventListener('click', () => togglePanel('toc'));
+  $('textBtn').addEventListener('click', () => togglePanel('textpanel'));
+  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => togglePanel(b.dataset.close, false)));
+
+  /* ---------- modes ---------- */
+  function setMode(m){ userMode = m; try { localStorage.setItem('les-dp-mode', m); } catch(e) {} render(false); }
+  $('modePage').addEventListener('click', () => setMode('page'));
+  $('modeSpread').addEventListener('click', () => setMode('spread'));
+  prevB.addEventListener('click', () => go(-1));
+  nextB.addEventListener('click', () => go(1));
+
+  /* ---------- clavier ---------- */
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('input,textarea')) return;
+    if (lbOpen){
+      if (e.key === 'Escape'){ e.preventDefault(); closeLB(); return; }
+      if (e.key === '+' || e.key === '='){ e.preventDefault(); zoomBy(1.25); return; }
+      if (e.key === '-' || e.key === '_'){ e.preventDefault(); zoomBy(1/1.25); return; }
+      if (e.key === '0'){ e.preventDefault(); resetZoom(); return; }
+      if (scale > 1.001 && /^Arrow/.test(e.key)){     // agrandi : les flèches déplacent l'image
+        e.preventDefault(); const s = 60;
+        panBy(e.key === 'ArrowLeft' ? s : e.key === 'ArrowRight' ? -s : 0, e.key === 'ArrowUp' ? s : e.key === 'ArrowDown' ? -s : 0); return;
+      }
+      if (e.key === 'PageDown' || e.key === 'ArrowRight'){ e.preventDefault(); go(1); return; }
+      if (e.key === 'PageUp' || e.key === 'ArrowLeft'){ e.preventDefault(); go(-1); return; }
+      if (e.key === 'Tab') trapFocus(e);
+      return;
+    }
+    if (e.key === 'Escape'){ ['toc','textpanel'].forEach(id => { if (!$(id).hidden) togglePanel(id, false); }); return; }
+    if (e.target.closest && e.target.closest('#textBody') && /^Arrow(Up|Down)/.test(e.key)) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); go(1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(-1); }
+    else if (e.key === 'Home'){ e.preventDefault(); goPage(1); }
+    else if (e.key === 'End'){ e.preventDefault(); goPage(N); }
+  });
+
+  /* ---------- balayage tactile (vue normale) ---------- */
+  let sw = null;
+  stage.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') sw = { x: e.clientX, y: e.clientY, t: Date.now() }; });
+  stage.addEventListener('pointerup', e => {
+    if (!sw) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y; sw = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) go(dx < 0 ? 1 : -1);
+  });
+  stage.addEventListener('pointercancel', () => sw = null);
+  view.addEventListener('dblclick', () => openLB());
+
+  /* ---------- mode agrandi ---------- */
+  const lb = $('lb'), lbStage = $('lbStage'), lbView = $('lbView');
+  let lbOpen = false, scale = 1, tx = 0, ty = 0, base = { w: 0, h: 0 }, lastFocus = null;
+  function renderLB(){
+    const v = views()[viewIndexOf(page)];
+    lbView.replaceChildren(...v.map(n => {
+      const im = imgFor(n, 'std'), hd = new Image();
+      hd.onload = () => { if (im.isConnected) im.src = hd.src; };   // remplace par la haute définition dès qu'elle est chargée
+      hd.src = P(n).hd; return im;
+    }));
+    $('lbCounter').textContent = counter.textContent;
+    $('lbPrev').disabled = prevB.disabled; $('lbNext').disabled = nextB.disabled;
+    layoutLB(); resetZoom();
+  }
+  function layoutLB(){
+    const v = views()[viewIndexOf(page)];
+    base = fit(lbView, v, lbStage.clientWidth - (window.innerWidth > 700 ? 140 : 24), lbStage.clientHeight - 24);
+    apply();
+  }
+  function clampPan(){
+    const sw2 = base.w * scale, sh2 = base.h * scale, W = lbStage.clientWidth, H = lbStage.clientHeight;
+    const mx = Math.max(0, (sw2 - W) / 2 + 20), my = Math.max(0, (sh2 - H) / 2 + 20);
+    tx = Math.min(mx, Math.max(-mx, tx)); ty = Math.min(my, Math.max(-my, ty));
+  }
+  function apply(){
+    clampPan();
+    lbView.style.transform = `translate(${-base.w * scale / 2 + tx}px, ${-base.h * scale / 2 + ty}px) scale(${scale})`;
+    $('zLevel').textContent = Math.round(scale * 100) + ' %';
+    lbStage.classList.toggle('zoomed', scale > 1.001);
+  }
+  function zoomTo(s, cx, cy){
+    s = Math.min(5, Math.max(1, s));
+    if (cx !== undefined){
+      const r = lbStage.getBoundingClientRect(), ox = cx - r.left - r.width / 2, oy = cy - r.top - r.height / 2;
+      tx = ox - (ox - tx) * s / scale; ty = oy - (oy - ty) * s / scale;
+    } else { tx *= s / scale; ty *= s / scale; }
+    scale = s; if (scale <= 1.001){ tx = 0; ty = 0; } apply();
+  }
+  function zoomBy(f, cx, cy){ zoomTo(scale * f, cx, cy); }
+  function resetZoom(){ scale = 1; tx = 0; ty = 0; apply(); }
+  function panBy(dx, dy){ tx += dx; ty += dy; apply(); }
+  function openLB(){
+    lastFocus = document.activeElement; lbOpen = true; lb.hidden = false;
+    document.querySelectorAll('.toolbar,.stage,.controls,.panel').forEach(el => el.setAttribute('aria-hidden', 'true'));
+    renderLB(); $('lbClose').focus();
+  }
+  function closeLB(){
+    lbOpen = false; lb.hidden = true;
+    document.querySelectorAll('.toolbar,.stage,.controls,.panel').forEach(el => el.removeAttribute('aria-hidden'));
+    (lastFocus && lastFocus.isConnected ? lastFocus : $('zoomBtn')).focus();
+  }
+  function trapFocus(e){
+    const f = [...lb.querySelectorAll('button:not([disabled]),a[href]')].filter(x => x.offsetParent !== null);
+    if (!f.length) return; const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+  $('zoomBtn').addEventListener('click', openLB);
+  $('lbClose').addEventListener('click', closeLB);
+  $('zIn').addEventListener('click', () => zoomBy(1.25));
+  $('zOut').addEventListener('click', () => zoomBy(1/1.25));
+  $('zReset').addEventListener('click', resetZoom);
+  $('lbPrev').addEventListener('click', () => go(-1));
+  $('lbNext').addEventListener('click', () => go(1));
+  lbStage.addEventListener('wheel', e => { e.preventDefault(); zoomBy(e.deltaY < 0 ? 1.15 : 1/1.15, e.clientX, e.clientY); }, { passive: false });
+  lbView.addEventListener('dblclick', e => { scale > 1.001 ? resetZoom() : zoomTo(2.5, e.clientX, e.clientY); });
+
+  /* Pointeurs : à 100 %, un glissement horizontal change de page ;
+     agrandi, il déplace l'image ; deux doigts zooment. */
+  const pts = new Map(); let g = null;
+  lbStage.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    lbStage.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 1) g = { x: e.clientX, y: e.clientY, tx, ty, swipe: scale <= 1.001, moved: false };
+    if (pts.size === 2){ const [a, b] = [...pts.values()]; g = { pinch: Math.hypot(a.x - b.x, a.y - b.y), s: scale, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; }
+  });
+  lbStage.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId) || !g) return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pts.size === 2 && g.pinch){ const [a, b] = [...pts.values()]; zoomTo(g.s * Math.hypot(a.x - b.x, a.y - b.y) / g.pinch, g.cx, g.cy); return; }
+    if (pts.size === 1 && !g.swipe){ tx = g.tx + e.clientX - g.x; ty = g.ty + e.clientY - g.y; g.moved = true; lbStage.classList.add('grabbing'); apply(); }
+  });
+  function endPtr(e){
+    if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); lbStage.classList.remove('grabbing');
+    if (g && g.swipe && !g.pinch && pts.size === 0){
+      const dx = e.clientX - g.x, dy = e.clientY - g.y;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) go(dx < 0 ? 1 : -1);
+    }
+    if (pts.size === 0) g = null;
+  }
+  lbStage.addEventListener('pointerup', endPtr); lbStage.addEventListener('pointercancel', endPtr);
+
+  /* ---------- chargement progressif ---------- */
+  const loaded = new Set();
+  function preload(n){ if (n < 1 || n > N || loaded.has(n)) return; loaded.add(n); const i = new Image(); i.decoding = 'async'; i.src = P(n).std; }
+  function preloadAround(vi){
+    const vs = views(); [vi + 1, vi - 1].forEach(k => (vs[k] || []).forEach(preload));
+  }
+  window.addEventListener('load', () => {
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 400));
+    let k = 1; const step = () => { if (k > N) return; preload(k++); idle(step); }; idle(step);
+  });
+
+  /* ---------- redimensionnement / orientation ---------- */
+  let rz;
+  window.addEventListener('resize', () => {
+    clearTimeout(rz); rz = setTimeout(() => {
+      if (effMode() !== lastMode){ lastMode = effMode(); render(false); }   // la page courante est conservée
+      else { layoutMain(); if (lbOpen) layoutLB(); }
+      $('modeSeg').hidden = !canSpread || !wideEnough();
+    }, 80);
+  });
+
+  render(false);
+})();
+</script>
+</body>
+</html>
